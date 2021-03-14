@@ -55,6 +55,36 @@ void loop()
     {
         Serial.println(EEPROM.get(i*4, data), HEX);
     }
+
+    if (Serial.available())
+    {
+        String command = Serial.readStringUntil('\n');
+        
+        if (command.startsWith("SEND "))
+        {
+
+        }
+
+        if (command.startsWith("LIST "))
+        {
+
+        }
+
+        if (command.startsWith("REGISTER "))
+        {
+
+        }
+
+        if (command.startsWith("DELETE "))
+        {
+
+        }
+
+        if (command.startsWith("LEARN "))
+        {
+
+        }
+    }
     
 
     //delay(5000);
