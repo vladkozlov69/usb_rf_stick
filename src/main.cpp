@@ -1,6 +1,5 @@
 #include <Arduino.h>
 #include <RCSwitch.h>
-// #include <FlashAsEEPROM_SAMD.h>
 #include <PlainMemList.h>
 
 RCSwitch mySwitch = RCSwitch();
@@ -9,20 +8,14 @@ const char* CMD_REGISTER = "REGISTER ";
 const char* CMD_SEND = "SEND ";
 const char* CMD_LIST = "LIST";
 const char* CMD_LEARN = "LEARN";
+const char* CMD_DEBUG = "DEBUG";
 const char* CMD_DELETE = "DELETE ";
-
-// const int NVS_SIZE = PLAINMEMLIST_SIZE;
-// const int WRITTEN_SIGNATURE = 0xBEEFDEED;
 
 PlainMemList registered_devices;
 
+bool debug_status = false;
 bool learn_status = false;
 unsigned long learn_start = 0;
-
-// void eraseEEProm(boolean commit);
-// void checkEEPromFormatted();
-// void saveDevices(boolean commit);
-// void commitEEProm(boolean commit);
 
 void setup() 
 {
@@ -36,39 +29,25 @@ void setup()
     pinMode(LED_BUILTIN, OUTPUT);
     digitalWrite(LED_BUILTIN, HIGH);
 
-    // checkEEPromFormatted();
-
-    // for (int i = 0; i < NVS_SIZE; i++)
-    // {
-    //     long data = 0;
-    //     int eeprom_addr = sizeof(SAMD_EEPROM_EMULATION_SIGNATURE) + i * sizeof(long);
-    //     EEPROM.get(eeprom_addr, data);
-    //     if (data != 0 && data != -1L)
-    //     {
-    //         registered_devices.append(data);
-    //     }
-    // }
-
     Serial.println("#RCSLink v0.0.1");
 }
 
 void loop() 
 {
-    // if (digitalRead(8) == LOW)
-    // {
-    //     eraseEEProm(true);
-    // }
-
     if (mySwitch.available()) 
     {
         long value = mySwitch.getReceivedValue();
-        Serial.print("#Received ");
-        Serial.print(value);
-        Serial.print(" / ");
-        Serial.print( mySwitch.getReceivedBitlength() );
-        Serial.print("bit ");
-        Serial.print("Protocol: ");
-        Serial.println( mySwitch.getReceivedProtocol() );
+
+        if (debug_status)
+        {
+            Serial.print("#Received ");
+            Serial.print(value);
+            Serial.print(" / ");
+            Serial.print( mySwitch.getReceivedBitlength() );
+            Serial.print("bit ");
+            Serial.print("Protocol: ");
+            Serial.println( mySwitch.getReceivedProtocol() );
+        }
 
         mySwitch.resetAvailable();
 
@@ -83,7 +62,6 @@ void loop()
                 registered_devices.append(value);
                 Serial.print("#:LEARNED ");
                 Serial.println(value);
-                // saveDevices(true);
             }
         }
     }
@@ -117,7 +95,6 @@ void loop()
             if (registered_devices.indexOf(code) < 0)
             {
                 registered_devices.append(code);
-                // saveDevices(true);
             }
         }
 
@@ -130,8 +107,6 @@ void loop()
             if (index >= 0)
             {
                 registered_devices.remove(index);
-                // eraseEEProm(false);
-                // saveDevices(true);
             }
         }
 
@@ -142,6 +117,12 @@ void loop()
             digitalWrite(LED_BUILTIN, LOW);
             Serial.println("#Learn ON");
         }
+
+        if (command.startsWith(CMD_DEBUG))
+        {
+            debug_status = true;
+            Serial.println("#Debug ON");
+        }
     }
     
     if (learn_status && (millis() - learn_start) > 30000)
@@ -151,48 +132,3 @@ void loop()
         Serial.println("#Learn OFF");
     }
 }
-
-// void eraseEEProm(boolean commit)
-// {
-//     for (int i = sizeof(SAMD_EEPROM_EMULATION_SIGNATURE); i < EEPROM_EMULATION_SIZE; i++)
-//     {
-//         EEPROM.write(i, 0);
-//     }
-
-//     commitEEProm(commit);
-// }
-
-// void checkEEPromFormatted()
-// {
-//     unsigned int signature;
-//     EEPROM.get(0, signature);
-
-//     if (signature != SAMD_EEPROM_EMULATION_SIGNATURE)
-//     {
-//         Serial.println("EEPROM is empty, writing WRITTEN_SIGNATURE and some example data:");
-
-//         EEPROM.put(0, SAMD_EEPROM_EMULATION_SIGNATURE);
-
-//         eraseEEProm(true);
-//     }
-// }
-
-// void saveDevices(boolean commit)
-// {
-//     for (int i = 0; i < registered_devices.length; i++)
-//     {
-//         int eeprom_addr = sizeof(SAMD_EEPROM_EMULATION_SIGNATURE) + i * sizeof(long);
-//         EEPROM.put(eeprom_addr, registered_devices.data[i]);
-//     }
-
-//     commitEEProm(commit);
-// }
-
-// void commitEEProm(boolean commit)
-// {
-//     if (commit && !EEPROM.getCommitASAP())
-//     {
-//         Serial.println("CommitASAP not set. Need commit()");
-//         EEPROM.commit();
-//     }
-// }
