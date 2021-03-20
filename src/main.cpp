@@ -29,7 +29,7 @@ void setup()
     pinMode(LED_BUILTIN, OUTPUT);
     digitalWrite(LED_BUILTIN, HIGH);
 
-    Serial.println("#RCSLink v0.0.1");
+    Serial.println("#RCSLink v0.0.2");
 }
 
 void loop() 
@@ -51,7 +51,7 @@ void loop()
 
         mySwitch.resetAvailable();
 
-        if (registered_devices.indexOf(value) >=0)
+        if (registered_devices.length == 0 || registered_devices.indexOf(value) >=0)
         {
             Serial.println(value);
         }
@@ -80,10 +80,17 @@ void loop()
 
         if (command.startsWith(CMD_LIST))
         {
-            for (int i = 0; i < registered_devices.length; i++)
+            if (registered_devices.length > 0)
             {
-                Serial.print("#:");
-                Serial.println(registered_devices.data[i]);
+                for (int i = 0; i < registered_devices.length; i++)
+                {
+                    Serial.print("#:");
+                    Serial.println(registered_devices.data[i]);
+                }
+            }
+            else
+            {
+                Serial.println("#Empty");
             }
         }
 
