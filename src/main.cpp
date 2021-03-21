@@ -20,10 +20,10 @@ unsigned long learn_start = 0;
 void setup() 
 {
     Serial.begin(9600);
-    while (!Serial);
+    // while (!Serial);
 
-    mySwitch.enableReceive(EXTERNAL_INT_10); 
-    mySwitch.enableTransmit(9);
+    mySwitch.enableReceive(EXTERNAL_INT_10); // REceive on pin 10
+    mySwitch.enableTransmit(9);              // Transmit on pin 9
 
     pinMode(8, INPUT_PULLUP);
     pinMode(LED_BUILTIN, OUTPUT);
@@ -46,7 +46,9 @@ void loop()
             Serial.print( mySwitch.getReceivedBitlength() );
             Serial.print("bit ");
             Serial.print("Protocol: ");
-            Serial.println( mySwitch.getReceivedProtocol() );
+            Serial.print( mySwitch.getReceivedProtocol() );
+            Serial.print(" REG:");
+            Serial.println(registered_devices.indexOf(value));
         }
 
         mySwitch.resetAvailable();
