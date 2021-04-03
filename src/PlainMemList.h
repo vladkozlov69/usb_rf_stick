@@ -16,8 +16,9 @@ public:
     }
     void remove(int index) 
     {
-        if (index >= length) return;
-        memmove(&data[index], &data[index+1], length - index - 1);
+        if (index >= length || index < 0) return;
+        memmove(&data[index], &data[index+1], sizeof(long) * (length - index - 1));
+
         length--;
     }
     int indexOf(long value)
